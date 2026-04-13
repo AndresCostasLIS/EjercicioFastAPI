@@ -20,3 +20,4 @@ class DatabaseSettings(BaseSettings):
 
 
 settings = DatabaseSettings()
+

@@ -1,9 +1,22 @@
+from pydantic import BaseModel, Field
 from typing import Optional
 
-from pydantic import Field
-from app.api.models import Vehicle
+class CarBase(BaseModel):
+    plate: str = Field(min_length=7, max_length=30)
+    capacity: Optional[int] = None
+    electrical: Optional[bool] = None
 
-class Car(Vehicle):
-    plate: str = Field(min_length= 7 ,max_length = 30)
-    capacity: Optional[int]
-    electrical: Optional[bool]
+
+class CarCreate(CarBase):
+    user_id: int
+    color: Optional[str] = None
+
+
+class CarResponse(CarBase):
+    id: int
+    user_id: int
+    color: Optional[str]
+
+    model_config = {
+        "from_attributes": True
+    }

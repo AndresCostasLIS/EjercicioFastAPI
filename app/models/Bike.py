@@ -1,9 +1,21 @@
-
+from pydantic import BaseModel
 from typing import Optional
 
-from app.api.models import Type, Vehicle
+class BikeBase(BaseModel):
+    basket: Optional[bool] = None
+    type_id: int
 
 
-class Bike(Vehicle):
-    basket: Optional[bool]
-    type_id: Type
+class BikeCreate(BikeBase):
+    user_id: int
+    color: Optional[str] = None
+
+
+class BikeResponse(BikeBase):
+    id: int
+    user_id: int
+    color: Optional[str]
+
+    model_config = {
+        "from_attributes": True
+    }

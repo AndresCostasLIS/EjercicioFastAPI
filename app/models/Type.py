@@ -1,20 +1,18 @@
-from itertools import count
+# app/models/Type.py
 
-from pydactic import BaseModel
-from typing import ClassVar, Field
+from pydantic import BaseModel, Field
+
+class TypeBase(BaseModel):
+    description: str = Field(min_length=3, max_length=150)
 
 
-class TypeCreate(BaseModel):
-    
-    description: str = Field(max_length= 150)
-    
-class Type(TypeCreate):
-    _id_counter: ClassVar[count] = count(1)
-    id: int = Field(default_factory=lambda: next(Type._id_counter))
+class TypeCreate(TypeBase):
+    pass
 
-        
-    
-        
-        
 
-    
+class TypeResponse(TypeBase):
+    id: int
+
+    model_config = {
+        "from_attributes": True
+    }
