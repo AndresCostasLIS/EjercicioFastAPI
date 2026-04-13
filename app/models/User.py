@@ -1,5 +1,6 @@
 
-from typing import Optional
+from itertools import count
+from typing import ClassVar, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, EmailStr
@@ -10,12 +11,11 @@ class UserCreate(BaseModel):
     phone: str = Field(min_length= 9, max_length= 15)
     age: Optional[int] = None
     
+    def create_user(self) -> "User":
+        return User(**self.model_dump())
     
     
 class User(UserCreate):
-    _id_count = 1
-    id: int
-    active: bool
-    
-    def __init__(self):
-        User._id_count += 1
+    _id_counter: ClassVar[count] = count(1)
+    id: int = Field(default_factory=lambda: next(User._id_counter))
+    active: bool = True

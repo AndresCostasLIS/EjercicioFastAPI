@@ -1,8 +1,7 @@
 
+from app.api import user
 from fastapi import FastAPI
 
 app = FastAPI(titile= "Ejercicio API")
 
-@app.get("/test")
-def test():
-    return {"message:" "hello world"}
+app.include_router(user.router, prefix="/user", tags=["user"])
