@@ -1,11 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from app.models.User import User, UserCreate
 
 
 router = APIRouter()
 
 @router.post("/create")
-def create_user(user: UserCreate):
+async def create_user(user: UserCreate):
     new_user = user.create_user()
     return {
         "detail": "User created",
@@ -13,8 +13,11 @@ def create_user(user: UserCreate):
         "user": new_user
     }
     
-@router.get("/{user_id}")
-def get_user(user_id: int):
-    # user = user.get_user()
-    # return user
-    pass
+@router.get("/user", response_model=User)
+async def get_user(id:int, session: SessionDep):
+    user = await session.get(User, id)
+    if user is None:
+        raise HTTPException(
+            status_code= status.HT
+        )
+    
