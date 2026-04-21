@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     phone: str = Field(min_length= 9, max_length= 15)
     age: Optional[int] = None
+    password: str 
     
     def create_user(self) -> "User":
         return User(**self.model_dump())
@@ -26,3 +27,4 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = Field(default=None, min_length=9, max_length=15)
     age: Optional[int] = None
     active: Optional[bool] = None
+    password_hash: str 

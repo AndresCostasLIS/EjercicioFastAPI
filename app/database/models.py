@@ -5,19 +5,20 @@ from app.database.base import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     email = Column(String(200), nullable=False)
     phone = Column(String(15), nullable=False)
     age = Column(Integer)
     active = Column(Boolean, nullable=False)
+    password = Column(String(255), nullable=False)
 
     vehicles = relationship("Vehicle", back_populates="user")
     
 class Vehicle(Base):
     __tablename__ = "vehicles"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     color = Column(String(25))
     active = Column(Boolean, nullable=False)
@@ -35,7 +36,7 @@ class Vehicle(Base):
 class Car(Vehicle):
     __tablename__ = "cars"
 
-    id = Column(Integer, ForeignKey("vehicles.id"), primary_key=True)
+    id = Column(Integer, ForeignKey("vehicles.id"), primary_key=True, autoincrement=True)
     plate = Column(String(30), nullable=False)
     capacity = Column(Integer)
     electrical = Column(Boolean)
@@ -47,7 +48,7 @@ class Car(Vehicle):
 class Bike(Vehicle):
     __tablename__ = "bikes"
 
-    id = Column(Integer, ForeignKey("vehicles.id"), primary_key=True)
+    id = Column(Integer, ForeignKey("vehicles.id"), primary_key=True, autoincrement=True)
     basket = Column(Boolean)
     type_id = Column(Integer, ForeignKey("types.id"), nullable=False)
 
@@ -59,5 +60,6 @@ class Bike(Vehicle):
 class Type(Base):
     __tablename__ = "types"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(String(150), nullable=False)
+    
