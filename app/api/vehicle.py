@@ -1,15 +1,18 @@
+from typing import Annotated
+
 from app.api.user import get_user
 from app.database.session import SessionDep
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.models.Vehicle import VehicleCreate
 from app.database.models import Vehicle, User
+from app.api.core.security import  oauth2_scheme
 
 
 
 router = APIRouter()    
 
 @router.post("/")
-async def create_vehicle(user_id: int, data: VehicleCreate, session: SessionDep):
+async def create_vehicle(user_id: int, data: VehicleCreate, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
 
     user = await session.get(User, user_id)
 
@@ -30,7 +33,7 @@ async def create_vehicle(user_id: int, data: VehicleCreate, session: SessionDep)
 
 
 @router.get("/{id}")
-async def get_vehicle(id: int, session: SessionDep):
+async def get_vehicle(id: int, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
     vehicle = await session.get(Vehicle, id)
     if not vehicle:
         raise HTTPException(404, "Vehicle not found")
@@ -38,7 +41,7 @@ async def get_vehicle(id: int, session: SessionDep):
 
 
 @router.delete("/{id}")
-async def delete_vehicle(id: int, session: SessionDep):
+async def delete_vehicle(id: int, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
     vehicle = await session.get(Vehicle, id)
     if not vehicle:
         raise HTTPException(404, "Vehicle not found")

@@ -1,15 +1,17 @@
 from datetime import datetime, timedelta, timezone
 
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 
 from app.database.session import SessionDep
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.database.models import User as UserModel
 from app.models.User import UserCreate, UserUpdate
 from passlib.context import CryptContext
 from app.services.utils import is_user_valid
 import jwt
 from app.config import jwt_settings
+
 
 
 router = APIRouter()
@@ -88,19 +90,26 @@ async def delete_user(id: int, session: SessionDep):
 
     return {"detail": "Usuario borrado correctamente"}
 
-@router.post("/login")
-async def login(email: str, password: str, session: SessionDep):
-    user = await session.execute(select(UserModel).where(UserModel.email == email))
-    user = user.scalar_one_or_none()
 
-    if not user or not password_context.verify(password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas"
-        )
-    token = jwt.encode({
-        "user_id": user.id, 
-        "email": user.email,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=1)}
-        ,key=jwt_settings.JWT_SECRET_KEY, algorithm="HS256")
-    return {"access_token": token}
+@router.post("/login")
+async def login(session: SessionDep,form_data: OAuth2PasswordRequestForm = Depends()
+):
+    result = await session.execute(
+        select(UserModel).where(UserModel.email == form_data.username)
+    )
+    user = result.scalar_one_or_none()
+
+    if not user or not password_context.verify(form_data.password, user.password):
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    token = jwt.encode(
+        {
+            "user_id": user.id,
+            "email": user.email,
+            "exp": datetime.now(timezone.utc) + timedelta(hours=1)
+        },
+        jwt_settings.JWT_SECRET_KEY,
+        algorithm="HS256"
+    )
+
+    return {"access_token": token, "token_type": "bearer"}

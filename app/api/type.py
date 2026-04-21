@@ -1,16 +1,18 @@
 # app/api/type.py
 
-from fastapi import APIRouter, HTTPException
+from typing_extensions import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException
 from app.database.session import SessionDep
 from app.database.models import Type
 from app.models.Type import TypeCreate, TypeResponse
-
+from app.api.core.security import  oauth2_scheme
 router = APIRouter()
 
 
 # CREATE
 @router.post("/", response_model=TypeResponse)
-async def create_type(data: TypeCreate, session: SessionDep):
+async def create_type(data: TypeCreate, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
 
     type_obj = Type(description=data.description)
 
@@ -23,7 +25,7 @@ async def create_type(data: TypeCreate, session: SessionDep):
 
 # GET BY ID
 @router.get("/{id}", response_model=TypeResponse)
-async def get_type(id: int, session: SessionDep):
+async def get_type(id: int, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
 
     type_obj = await session.get(Type, id)
     if not type_obj:
@@ -34,7 +36,7 @@ async def get_type(id: int, session: SessionDep):
 
 # UPDATE
 @router.put("/{id}", response_model=TypeResponse)
-async def update_type(id: int, data: TypeCreate, session: SessionDep):
+async def update_type(id: int, data: TypeCreate, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
 
     type_obj = await session.get(Type, id)
     if not type_obj:
@@ -50,7 +52,7 @@ async def update_type(id: int, data: TypeCreate, session: SessionDep):
 
 # DELETE
 @router.delete("/{id}")
-async def delete_type(id: int, session: SessionDep):
+async def delete_type(id: int, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
 
     type_obj = await session.get(Type, id)
     if not type_obj:
