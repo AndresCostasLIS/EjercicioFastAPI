@@ -1,16 +1,17 @@
 from app.api.user import get_user
 from app.database.session import SessionDep
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.models.Car import CarCreate
 from app.database.models import Car, User
 from sqlalchemy import select
-
+from typing import Annotated
+from app.api.core.security import oauth2_scheme
 
 
 router = APIRouter()    
 
 @router.post("/car")
-async def create_car(data: CarCreate, session: SessionDep):
+async def create_car(data: CarCreate, session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)]):
 
     # comprobar usuario
     user = await session.get(User, data.user_id)
@@ -33,7 +34,7 @@ async def create_car(data: CarCreate, session: SessionDep):
     return car
 
 @router.get("/{id}")
-async def get_car(id: int, session: SessionDep):
+async def get_car(id: int, session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)]):
 
     car = await session.get(Car, id)
 
@@ -43,7 +44,7 @@ async def get_car(id: int, session: SessionDep):
     return car
 
 @router.put("/{id}")
-async def update_car(id: int, data: CarCreate, session: SessionDep):
+async def update_car(id: int, data: CarCreate, session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)]):
 
     car = await session.get(Car, id)
 
@@ -55,6 +56,7 @@ async def update_car(id: int, data: CarCreate, session: SessionDep):
     car.plate = data.plate
     car.capacity = data.capacity
     car.electrical = data.electrical
+    car.active = data.active
 
     await session.commit()
     await session.refresh(car)
@@ -63,7 +65,7 @@ async def update_car(id: int, data: CarCreate, session: SessionDep):
 
 
 @router.delete("/{id}")
-async def delete_car(id: int, session: SessionDep):
+async def delete_car(id: int, session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)]):
 
     car = await session.get(Car, id)
 
@@ -77,7 +79,7 @@ async def delete_car(id: int, session: SessionDep):
 
 
 @router.get("/")
-async def get_cars(session: SessionDep):
+async def get_cars(session: SessionDep,token: Annotated[str, Depends(oauth2_scheme)]):
 
     result = await session.execute(select(Car))
     cars = result.scalars().all()

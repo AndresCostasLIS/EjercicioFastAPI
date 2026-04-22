@@ -39,6 +39,21 @@ async def get_vehicle(id: int, session: SessionDep, token: Annotated[str, Depend
         raise HTTPException(404, "Vehicle not found")
     return vehicle
 
+@router.put("/{id}")
+async def update_vehicle(id: int, data: VehicleCreate, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
+    vehicle = await session.get(Vehicle, id)
+    if not vehicle:
+        raise HTTPException(404, "Vehicle not found")
+
+    vehicle.color = data.color
+    vehicle.active = data.active
+
+    session.add(vehicle)
+    await session.commit()
+    await session.refresh(vehicle)
+
+    return vehicle
+
 
 @router.delete("/{id}")
 async def delete_vehicle(id: int, session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):

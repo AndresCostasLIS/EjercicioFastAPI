@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 class VehicleCreate(BaseModel):
     
     color: str = Field(min_length=3, max_length= 25)
+    active: bool = Field(default=True)
 
 
 

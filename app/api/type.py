@@ -1,6 +1,6 @@
 # app/api/type.py
 
-from typing_extensions import Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from app.database.session import SessionDep

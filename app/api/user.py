@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from app.database.session import SessionDep
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.database.models import User as UserModel
+from app.database.models import User as UserModel, Vehicle
 from app.models.User import UserCreate, UserUpdate
 from passlib.context import CryptContext
 from app.services.utils import is_user_valid
@@ -113,3 +113,25 @@ async def login(session: SessionDep,form_data: OAuth2PasswordRequestForm = Depen
     )
 
     return {"access_token": token, "token_type": "bearer"}
+
+@router.get("/get_users_un_active_vehicles")
+async def get_user_unactive_vehible(session: SessionDep):
+    stmt = (
+    select(UserModel, Vehicle)
+    .join(Vehicle, UserModel.id == Vehicle.user_id, isouter=True)
+    .where(UserModel.active.is_(True))
+    .where(
+        (Vehicle.id.is_(None)) |
+        (Vehicle.active.is_(False))
+    )
+)
+
+    result = await session.execute(stmt)
+    rows = result.all()
+
+    return [
+    {
+        "user": user,
+        "vehicle": vehicle
+    }
+    for user, vehicle in rows]

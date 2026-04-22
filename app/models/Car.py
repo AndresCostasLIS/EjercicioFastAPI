@@ -10,6 +10,7 @@ class CarBase(BaseModel):
 class CarCreate(CarBase):
     user_id: int
     color: Optional[str] = None
+    active: bool = Field(default=True)
 
 
 class CarResponse(CarBase):
